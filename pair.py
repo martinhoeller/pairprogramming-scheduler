@@ -1,15 +1,22 @@
 def calculatePairs(people):
-    weeks = len(people) - 1
+    evenNumber = (len(people) % 2 == 0)
+
+    weeks = len(people)
+    if evenNumber:
+        weeks = weeks - 1
 
     pairings = []
     for week in range(weeks):
         pairings.append([])
 
-    for person in people:
+    for person_index, person in enumerate(people):
         for week in range(weeks):
             week_pairings = pairings[week]
 
-            for partner in people:
+            for partner_index, partner in enumerate(people):
+                if not evenNumber:
+                    if person_index == week or partner_index == week:
+                        continue
                 if (partner == person):
                     continue
                 if (weekContainsPartner(week_pairings, partner)):
@@ -36,7 +43,7 @@ def pairingAlreadyExists(pairings, pairing):
     return pairing in flattened
 
 
-people = ["a", "b", "c", "d"]
+people = ["Kate", "Melissa", "Natalia", "Martin"]
 pairings = calculatePairs(people)
 for index, week_pairings in enumerate(pairings):
     print("Week " + str(index + 1) + ":")
