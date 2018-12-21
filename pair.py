@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import datetime
 
 
 def calculatePairs(people):
@@ -51,6 +52,27 @@ def calculatePairs(people):
     return cleaned_pairings
 
 
+def calculatePairingSessions(pairings, start_date, weeks):
+    current_date = datetime.datetime.strptime(start_date, "%d-%m-%Y")
+
+    sessions = []
+
+    weeks_in_roster = len(pairings)
+    for week in range(weeks):
+        roster_index = week % weeks_in_roster
+        week_pairings = pairings[roster_index]
+
+        session = {
+            "date": current_date,
+            "pairings": week_pairings
+        }
+        sessions.append(session)
+
+        current_date = current_date + datetime.timedelta(days=7)
+
+    return sessions
+
+
 def weekContainsPartner(week_pairings, partner):
     flattened = [item[1] for item in week_pairings]
     return partner in flattened
@@ -63,21 +85,40 @@ def pairingAlreadyExists(pairings, pairing):
 
 def printHelp():
     print "Usage: "
-    print "\tpython pair.py person1 person2 ..."
+    print "\tpython pair.py <start date> <weeks> person1 person2 ..."
+    print ""
+    print "<start date>: A date in the format dd-MM-yyyy, e.g 28-10-2018"
+    print "<weeks>: the number of weeks to calculate"
     print ""
     print "Provide at least two persons"
     print ""
 
 
-if len(sys.argv) < 3:
+if len(sys.argv) < 5:
     printHelp()
     exit(0)
 
-people = sys.argv
-people.pop(0)
+arguments = sys.argv
+arguments.pop(0)    # script name
+
+start_date = arguments.pop(0)
+weeks = int(arguments.pop(0))
+people = arguments
 
 pairings = calculatePairs(people)
+sessions = calculatePairingSessions(pairings, start_date, weeks)
+
+
+print "Roster:"
 for index, week_pairings in enumerate(pairings):
     print("Week " + str(index + 1) + ":")
+    for pair in week_pairings:
+        print("\t" + pair[0] + " / " + pair[1])
+
+print ""
+print "Sessions:"
+for session in sessions:
+    print str(session["date"]) + ":"
+    week_pairings = session["pairings"]
     for pair in week_pairings:
         print("\t" + pair[0] + " / " + pair[1])
